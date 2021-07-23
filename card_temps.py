@@ -2,13 +2,13 @@ import argparse
 import csv
 import re
 import sys
-from collections import namedtuple
 from glob import glob
 from pathlib import Path
 from pprint import pprint
 from zipfile import is_zipfile, BadZipFile, ZipFile, ZipExtFile
 
 DEFAULT_PATH = r'C:\ProgramFiles\Gatan\Logs\*DM.log'
+# This pattern may be able to be further optimized. Using a quantifier like {10} instead of the repetiton results in a 150% performance hit, so leave this stretched out for now
 DM_LOG_TEMPERATURE_PATTERN = re.compile(r'(\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s)')
 
 def get_zip_temps(file):
