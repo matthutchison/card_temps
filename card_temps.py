@@ -5,20 +5,27 @@ import sys
 from glob import glob
 from pathlib import Path
 from pprint import pprint
+from typing import Dict, List, Tuple
 from zipfile import is_zipfile, BadZipFile, ZipFile, ZipExtFile
 
 DEFAULT_PATH = r'C:\ProgramFiles\Gatan\Logs\*DM.log'
 DM_LOG_TEMPERATURE_PATTERN = re.compile(r'((:?\d?\d?\d[.]\d\d\s){10})')
 
-def get_zip_temps(file):
-    temps = {}
+def get_temps(file):
+    if is_zipfile(file):
+        return _get_zip_temps(file)
+    else:
+        return _get_log_temps(file)
+
+def _get_zip_temps(file):
+    temps: Dict[str, List[Tuple[int]]] = {}
     with ZipFile(file) as z:
         for name in z.namelist():
             f = z.open(name)
-            temps[name] = get_temps(f)
+            temps.update(_get_log_temps(f))
     return temps
 
-def get_temps(file):
+def _get_log_temps(file):
     if isinstance(file, ZipExtFile):
         try:
             data = file.readlines()
@@ -26,11 +33,13 @@ def get_temps(file):
         except (UnicodeDecodeError, BadZipFile) as e:
             print('cannot open {} because of {}'.format(file.name, e))
             data = ''
+        finally:
+            file = file.name
     else:
         with open(file, mode='r', errors='ignore') as f:
             data = f.readlines()
-    temps = [[int(float(i)) for i in x.group(0).split()] for x in (DM_LOG_TEMPERATURE_PATTERN.search(l) for l in data if 'Camera Temperature' in l) if x is not None]
-    temps = list(zip(*temps)) #turn from row-major to column-major
+    temps = ((int(float(i)) for i in x.group(0).split()) for x in (DM_LOG_TEMPERATURE_PATTERN.search(l) for l in data if 'Camera Temperature' in l) if x is not None)
+    temps = {Path(file).stem[:10]: list(zip(*temps))} #turn from row-major to column-major
     return temps
 
 def preprocess_rows(temps):
@@ -57,10 +66,7 @@ if __name__ == '__main__':
             sys.exit('No DM.log file found, exiting')
     all_temps = {}
     for file in files:
-        if is_zipfile(file):
-            all_temps.update(get_zip_temps(file))
-        else:
-            all_temps[Path(file).stem[:10]] = get_temps(file)
+        all_temps.update(get_temps(file))
     if not args.out:
         pprint(list(preprocess_rows(all_temps)))
     else:
