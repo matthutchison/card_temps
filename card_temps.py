@@ -8,8 +8,7 @@ from pprint import pprint
 from zipfile import is_zipfile, BadZipFile, ZipFile, ZipExtFile
 
 DEFAULT_PATH = r'C:\ProgramFiles\Gatan\Logs\*DM.log'
-# This pattern may be able to be further optimized. Using a quantifier like {10} instead of the repetiton results in a 150% performance hit, so leave this stretched out for now
-DM_LOG_TEMPERATURE_PATTERN = re.compile(r'(\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s\d\d[.]\d\d\s)')
+DM_LOG_TEMPERATURE_PATTERN = re.compile(r'((:?\d\d[.]\d\d\s){10})')
 
 def get_zip_temps(file):
     temps = {}
@@ -22,15 +21,15 @@ def get_zip_temps(file):
 def get_temps(file):
     if isinstance(file, ZipExtFile):
         try:
-            data = file.read()
-            data = data.decode(errors='ignore')
+            data = file.readlines()
+            data = (l.decode(errors='ignore') for l in data)
         except (UnicodeDecodeError, BadZipFile) as e:
             print('cannot open {} because of {}'.format(file.name, e))
             data = ''
     else:
         with open(file, mode='r', errors='ignore') as f:
-            data = f.read()
-    temps = [[int(float(i)) for i in x.split()] for x in re.findall(DM_LOG_TEMPERATURE_PATTERN, data)]
+            data = f.readlines()
+    temps = [[int(float(i)) for i in x.group(0).split()] for x in (DM_LOG_TEMPERATURE_PATTERN.search(l) for l in data if 'Camera Temperature' in l) if x is not None]
     temps = list(zip(*temps)) #turn from row-major to column-major
     return temps
 
