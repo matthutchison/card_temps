@@ -8,7 +8,7 @@ from pprint import pprint
 from zipfile import is_zipfile, BadZipFile, ZipFile, ZipExtFile
 
 DEFAULT_PATH = r'C:\ProgramFiles\Gatan\Logs\*DM.log'
-DM_LOG_TEMPERATURE_PATTERN = re.compile(r'((:?\d\d[.]\d\d\s){10})')
+DM_LOG_TEMPERATURE_PATTERN = re.compile(r'((:?\d?\d?\d[.]\d\d\s){10})')
 
 def get_zip_temps(file):
     temps = {}
