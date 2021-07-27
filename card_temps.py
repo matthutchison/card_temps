@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 from zipfile import is_zipfile, BadZipFile, ZipFile, ZipExtFile
 
+Temps = Dict[str, List[Tuple[int]]]
 DEFAULT_PATH = r'C:\ProgramFiles\Gatan\Logs\*DM.log'
 DM_LOG_TEMPERATURE_PATTERN = re.compile(r'((:?\d?\d?\d[.]\d\d\s){10})')
 
@@ -17,7 +18,7 @@ def get_temps(file):
         return _get_log_temps(file)
 
 def _get_zip_temps(file):
-    temps: Dict[str, List[Tuple[int]]] = {}
+    temps: Temps = {}
     with ZipFile(file) as z:
         for name in z.namelist():
             f = z.open(name)
@@ -41,18 +42,18 @@ def _get_log_temps(file):
     temps = {Path(file).stem[:10]: list(zip(*temps))} #turn from row-major to column-major
     return temps
 
-def preprocess_rows(temps):
+def preprocess_rows(temps: Temps):
     for k,v in temps.items():
         for i,c in enumerate(v):
             yield {'date': Path(k).stem[:10], 'processor': i, 'min': min(c), 'max': max(c), 'avg': sum(c)/len(c)}
 
-def export_csv(filename, temps):
+def export_csv(filename: str, temps: Temps):
     with open(filename, mode='x', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['date', 'processor', 'min', 'max', 'avg'])
         writer.writeheader()
         writer.writerows(preprocess_rows(temps))
 
-def get_processor_summary(temps):
+def get_processor_summary(temps: Temps):
     summary = {}
     for i in preprocess_rows(temps):
         proc, mi, mx, avg = i['processor'], i['min'], i['max'], i['avg']
@@ -79,7 +80,7 @@ if __name__ == '__main__':
         files = glob(DEFAULT_PATH)
         if len(files) == 0:
             sys.exit('No DM.log file found, exiting')
-    all_temps = {}
+    all_temps: Temps = {}
     for file in files:
         all_temps.update(get_temps(file))
     if not args.out:
