@@ -4,7 +4,6 @@ import re
 import sys
 from glob import glob
 from pathlib import Path
-from pprint import pprint
 from typing import Dict, List, Tuple
 from zipfile import is_zipfile, BadZipFile, ZipFile, ZipExtFile
 
@@ -53,6 +52,22 @@ def export_csv(filename, temps):
         writer.writeheader()
         writer.writerows(preprocess_rows(temps))
 
+def get_processor_summary(temps):
+    summary = {}
+    for i in preprocess_rows(temps):
+        proc, mi, mx, avg = i['processor'], i['min'], i['max'], i['avg']
+        if None in (proc, mi, mx, avg):
+            continue
+        if proc not in summary:
+            summary[proc] = [mi, mx, [avg]]
+        else:
+            summary[proc][0] = min(mi, summary[proc][0])
+            summary[proc][1] = max(mx, summary[proc][1])
+            summary[proc][2].append(avg)
+    for i in summary:
+        summary[i][2] = sum(summary[i][2]) / len(summary[i][2]) #average of averages, but it'll do for now
+    return summary
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--out', '-o', help='A file path to write the .csv output to. File must not already exist.')
@@ -68,6 +83,7 @@ if __name__ == '__main__':
     for file in files:
         all_temps.update(get_temps(file))
     if not args.out:
-        pprint(list(preprocess_rows(all_temps)))
+        for k,v in get_processor_summary(all_temps).items():
+            print('Processor {} stats: min = {}, max = {}, average = {}'.format(k, v[0], v[1], v[2]))
     else:
         export_csv(args.out, all_temps)
