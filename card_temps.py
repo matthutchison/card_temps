@@ -71,8 +71,9 @@ def get_processor_summary(temps: Temps):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--out', '-o', help='A file path to write the .csv output to. File must not already exist.')
+    parser.add_argument('--out', '-o', help='A file path to write the CSV output to. File must not already exist.')
     parser.add_argument('files', nargs='*', help='A list of zip files containing .DM.log files and/or a list of .DM.log files directly.')
+    parser.add_argument('--plot', '-p', action='store_true', help='Plot a time series graph of each processor. Requires matplotlib.')
     args = parser.parse_args()
     files = args.files
     if len(files) == 0:
@@ -86,5 +87,9 @@ if __name__ == '__main__':
     if not args.out:
         for k,v in get_processor_summary(all_temps).items():
             print('Processor {} stats: min = {}, max = {}, average = {}'.format(k, v[0], v[1], v[2]))
-    else:
+    if args.out:
         export_csv(args.out, all_temps)
+    if args.plot:
+        # this is imported inline only when the option is provided because matplotlib may be unavailable on many of these systems
+        import plot_card_temps
+        plot_card_temps.plot(all_temps)
