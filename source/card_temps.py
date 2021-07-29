@@ -91,5 +91,8 @@ def main():
         export_csv(args.out, all_temps)
     if args.plot:
         # this is imported inline only when the option is provided because matplotlib may be unavailable on many of these systems
-        import plot_card_temps
+        try:
+            import plot_card_temps
+        except ImportError:
+            sys.exit('Matplotlib does not appear to be installed in this python environment. Plotting feature requires matplotlib. Exiting')
         plot_card_temps.plot(all_temps)
