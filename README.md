@@ -5,7 +5,7 @@ This is a set of scripts used to parse and display the FPGA processor temperatur
 This script requires a python installation of version 3.6 or higher. Matplotlib is required to use the --plot/-p option but is not required for the summary or csv output.
 
 ## Usage
-The script can be run pointing at DM log files and/or zip files containing DM logs. These are located by default at c:\ProgramData\Gatan\Logs\. The default zipfile is DM.Archive.log and the log for the current day is <date>.DM.log, filling in the date in YYYY-MM-DD format for <date>. This makes the command to look at the log for 2021-07-27 `python3 c:\ProgramData\Gatan\Logs\2021-07-27.DM.log`.  When run without any parameters as `python3 card_temps.py` it will search the default log path for any .DM.log files and operate on them automatically.
+The script can be run pointing at DM log files and/or zip files containing DM logs. These are located by default at c:\ProgramData\Gatan\Logs\. The default zipfile containing logs for the last year is DM.Archive.log and the log for the current day is <date>.DM.log, filling in the date in YYYY-MM-DD format for <date>. This makes the command to look at the log for 2021-07-27 `./card_temps c:\ProgramData\Gatan\Logs\2021-07-27.DM.log`.  When run without any parameters as `./card_temps` it will search the default log path for any .DM.log files and operate on them automatically.
 
 This mode (no flags) will output a min/max/avg summary for each processor, calculated over the entirety of the input data. In some versions of DM the logged values are the same for both of the processors on a card, in newer versions the temperature of each processor is reported independenly.
 

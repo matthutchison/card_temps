@@ -69,7 +69,7 @@ def get_processor_summary(temps: Temps):
         summary[i][2] = sum(summary[i][2]) / len(summary[i][2]) #average of averages, but it'll do for now
     return summary
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--out', '-o', help='A file path to write the CSV output to. File must not already exist.')
     parser.add_argument('files', nargs='*', help='A list of zip files containing .DM.log files and/or a list of .DM.log files directly.')
