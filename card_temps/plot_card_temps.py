@@ -1,4 +1,4 @@
-from src.card_temps import Temps, preprocess_rows
+from card_temps.temps import Temps, preprocess_rows
 from datetime import datetime
 from itertools import groupby
 import math

@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+
+from card_temps.temps import main
+
+main()

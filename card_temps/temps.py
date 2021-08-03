@@ -92,7 +92,8 @@ def main():
     if args.plot:
         # this is imported inline only when the option is provided because matplotlib may be unavailable on many of these systems
         try:
-            import src.plot_card_temps
-        except ImportError:
+            from card_temps import plot_card_temps
+        except ImportError as e:
+            print(e)
             sys.exit('Matplotlib does not appear to be installed in this python environment. Plotting feature requires matplotlib. Exiting')
-        src.plot_card_temps.plot(all_temps)
+        plot_card_temps.plot(all_temps)
