@@ -8,7 +8,7 @@ from typing import Dict, List, Tuple
 from zipfile import is_zipfile, BadZipFile, ZipFile, ZipExtFile
 
 Temps = Dict[str, List[Tuple[int]]]
-DEFAULT_PATH = r'C:\ProgramFiles\Gatan\Logs\*DM.log'
+DEFAULT_PATH = r'C:\ProgramData\Gatan\Logs\*DM.log'
 DM_LOG_TEMPERATURE_PATTERN = re.compile(r'((:?\d?\d?\d[.]\d\d\s){10})')
 
 def get_temps(file):
